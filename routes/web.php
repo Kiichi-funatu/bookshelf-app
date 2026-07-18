@@ -8,12 +8,17 @@ use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReadingPlanController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\LoginController;
 
 /*
 |--------------------------------------------------------------------------
 | Public Routes (ゲストもアクセス可能)
 |--------------------------------------------------------------------------
 */
+Route::get('/register', [RegisterController::class, 'create'])->name('register');
+
+Route::get('/login', [LoginController::class, 'create'])->name('login');
 
 // トップ（書籍一覧）
 Route::get('/', [BookController::class, 'index'])->name('books.index');
@@ -23,11 +28,10 @@ Route::get('/books', [BookController::class, 'index']);
 Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
 
 // ランキング
-Route::get('/ranking', [BookController::class, 'ranking'])->name('ranking');
+Route::get('/ranking', [BookController::class, 'ranking'])->name('ranking.index');
 
 // ISBN検索（応用）
 Route::get('/books/isbn/{isbn}', [BookController::class, 'isbnLookup'])->name('books.isbn.lookup');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -117,6 +121,4 @@ Route::middleware('auth')->group(function () {
 });
 
 
-    Route::get('/', function () {
-        return view('welcome');
-    });
+    
