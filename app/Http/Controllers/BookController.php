@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Models\ReviewLike;
+use App\Models\Genre;
 
 class BookController extends Controller
 {
@@ -23,32 +24,36 @@ class BookController extends Controller
     // 書籍詳細
     public function show(Book $book)
     {
-        // 書籍に紐づくレビューを最新順で取得
-        $reviews = $book->reviews()
-            ->with('user')               // レビュー投稿者
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Blade が使うリレーションをすべてロード
+        $book->load([
+            'reviews.user',
+            'reviews.likedByUsers',   // ★ Blade の likedByUsers に合わせる
+            'genres',
+            'favorites'               // ★ Book 側の favorites（User一覧）
+        ]);
 
-        // 書籍に紐づくジャンル
+        // レビュー一覧（最新順）
+        $reviews = $book->reviews->sortByDesc('created_at');
+
+        // ジャンル一覧
         $genres = $book->genres;
 
-        // ログインユーザーがお気に入り済みか
-        $isFavorite = false;
-        
+        // お気に入り判定のために favoriteBooks をロード
         if (auth()->check()) {
-            $isFavorite = $book->favorites()
-                ->where('user_id', auth()->id())
-                ->exists();
+            auth()->user()->load('favoriteBooks'); // ★ Blade の favoriteBooks に合わせる
         }
 
-        // ログインユーザーがいいね済みか
-        $isLiked = false;
+        // Blade が使うお気に入り判定
+        $isFavorite = auth()->check()
+            ? auth()->user()->favoriteBooks->contains($book->id)
+            : false;
 
-        if (auth()->check()) {
-            $isLiked = ReviewLike::where('user_id', auth()->id())
+        // Blade が使う「レビューいいね」判定
+        $isLiked = auth()->check()
+            ? ReviewLike::where('user_id', auth()->id())
                 ->whereIn('review_id', $book->reviews->pluck('id'))
-                ->exists();
-        }
+                ->exists()
+            : false;
 
         return view('books.show', compact(
             'book',
@@ -59,28 +64,90 @@ class BookController extends Controller
         ));
     }
 
+
     // 書籍登録画面
     public function create()
     {
-        // ジャンル一覧を渡す
+        $genres = Genre::all(); // Blade の $genres に合わせる
+
+        return view('books.create', compact('genres'));
     }
 
     // 書籍登録
     public function store(Request $request)
     {
-        // バリデーション → 書籍作成 → ジャンル紐付け
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'author' => 'required|string|max:255',
+            'isbn' => 'required|string|size:13|unique:books,isbn',
+            'published_date' => 'required|date',
+            'description' => 'nullable|string',
+            'image_url' => 'nullable|url',
+            'genres' => 'required|array',
+            'genres.*' => 'exists:genres,id',
+        ]);
+
+        // 書籍を作成
+        $book = Book::create([
+            'title' => $validated['title'],
+            'author' => $validated['author'],
+            'isbn' => $validated['isbn'],
+            'published_date' => $validated['published_date'],
+            'description' => $validated['description'] ?? null,
+            'image_url' => $validated['image_url'] ?? null,
+            'user_id' => auth()->id(),
+        ]);
+
+        // ジャンルを紐づける（Blade の genres[] に合わせる）
+        $book->genres()->sync($validated['genres']);
+
+        return redirect()->route('books.show', $book)
+            ->with('success', '書籍を登録しました');
     }
 
     // 書籍編集画面
     public function edit(Book $book)
     {
-        // 認可 → 編集フォーム表示
+        // 認可（作成者のみ）
+        $this->authorize('update', $book);
+
+        $genres = Genre::all();
+
+        return view('books.edit', compact('book', 'genres'));
     }
 
     // 書籍更新
     public function update(Request $request, Book $book)
     {
-        // 認可 → バリデーション → 更新 → ジャンル紐付け更新
+        // 認可（作成者のみ）
+        $this->authorize('update', $book);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'author' => 'required|string|max:255',
+            'isbn' => 'required|string|size:13|unique:books,isbn,' . $book->id,
+            'published_date' => 'required|date',
+            'description' => 'nullable|string',
+            'image_url' => 'nullable|url',
+            'genres' => 'required|array',
+            'genres.*' => 'exists:genres,id',
+        ]);
+
+        // 書籍情報を更新
+        $book->update([
+            'title' => $validated['title'],
+            'author' => $validated['author'],
+            'isbn' => $validated['isbn'],
+            'published_date' => $validated['published_date'],
+            'description' => $validated['description'] ?? null,
+            'image_url' => $validated['image_url'] ?? null,
+        ]);
+
+        // ジャンルを更新
+        $book->genres()->sync($validated['genres']);
+
+        return redirect()->route('books.show', $book)
+            ->with('success', '書籍を更新しました');
     }
 
     // 書籍削除

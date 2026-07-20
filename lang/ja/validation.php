@@ -7,4 +7,13 @@ return [
     'max'      => [
         'string' => ':attributeは:max文字以内で入力してください。',
     ],
+    'unique' => ':attributeは既に使用されています。',
+
+    // フィールドごとのメッセージ
+    'attributes' => [
+        'email'    => 'メールアドレス',
+        'password' => 'パスワード',
+        'name'     => '名前',
+    ],
+
 ];

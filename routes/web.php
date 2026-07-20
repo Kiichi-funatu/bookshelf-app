@@ -24,9 +24,6 @@ Route::get('/login', [LoginController::class, 'create'])->name('login');
 Route::get('/', [BookController::class, 'index'])->name('books.index');
 Route::get('/books', [BookController::class, 'index']);
 
-// 書籍詳細
-Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
-
 // ランキング
 Route::get('/ranking', [BookController::class, 'ranking'])->name('ranking.index');
 
@@ -120,5 +117,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 });
 
-
+// 書籍詳細
+Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
     

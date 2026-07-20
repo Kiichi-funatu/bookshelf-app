@@ -41,10 +41,10 @@ class Book extends Model
         return $this->hasMany(Review::class);
     }
 
-    // お気に入り（1対多）
+    // お気に入り（多対多）
     public function favorites()
     {
-        return $this->hasMany(Favorite::class);
+        return $this->belongsToMany(User::class, 'favorites');
     }
 
     // 平均評価（アクセサ）
