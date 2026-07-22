@@ -55,5 +55,14 @@ class User extends Authenticatable
         return $this->belongsToMany(Review::class, 'review_likes');
     }
 
-    
+    public function likedReviews()
+    {
+        return $this->belongsToMany(Review::class, 'review_likes');
+    }
+
+    public function favorites()
+    {
+        return $this->belongsToMany(Book::class, 'favorites')
+                    ->withTimestamps();
+    }
 }

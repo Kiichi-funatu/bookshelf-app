@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Models\ReviewLike;
 use App\Models\Genre;
+use App\Http\Requests\StoreBookRequest;
+use App\Http\Requests\UpdateBookRequest;
 
 class BookController extends Controller
 {
@@ -41,6 +43,7 @@ class BookController extends Controller
         // お気に入り判定のために favoriteBooks をロード
         if (auth()->check()) {
             auth()->user()->load('favoriteBooks'); // ★ Blade の favoriteBooks に合わせる
+            auth()->user()->load('likedReviews');
         }
 
         // Blade が使うお気に入り判定
@@ -74,18 +77,10 @@ class BookController extends Controller
     }
 
     // 書籍登録
-    public function store(Request $request)
+    public function store(StoreBookRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'isbn' => 'required|string|size:13|unique:books,isbn',
-            'published_date' => 'required|date',
-            'description' => 'nullable|string',
-            'image_url' => 'nullable|url',
-            'genres' => 'required|array',
-            'genres.*' => 'exists:genres,id',
-        ]);
+        // ★ ここで自動的にバリデーション済み
+        $validated = $request->validated();
 
         // 書籍を作成
         $book = Book::create([
@@ -117,21 +112,12 @@ class BookController extends Controller
     }
 
     // 書籍更新
-    public function update(Request $request, Book $book)
+    public function update(UpdateBookRequest $request, Book $book)
     {
         // 認可（作成者のみ）
         $this->authorize('update', $book);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'isbn' => 'required|string|size:13|unique:books,isbn,' . $book->id,
-            'published_date' => 'required|date',
-            'description' => 'nullable|string',
-            'image_url' => 'nullable|url',
-            'genres' => 'required|array',
-            'genres.*' => 'exists:genres,id',
-        ]);
+        $validated = $request->validated();
 
         // 書籍情報を更新
         $book->update([
@@ -153,7 +139,29 @@ class BookController extends Controller
     // 書籍削除
     public function destroy(Book $book)
     {
-        // 認可 → 書籍削除 → 関連データ削除
+        // 認可（作成者本人のみ）
+        $this->authorize('delete', $book);
+
+        // 関連レビューのいいねを削除
+        foreach ($book->reviews as $review) {
+            $review->likedByUsers()->detach();
+        }
+
+        // 関連レビューを削除
+        $book->reviews()->delete();
+
+        // お気に入りを削除
+        $book->favorites()->detach();
+
+        // ジャンル紐付けを削除
+        $book->genres()->detach();
+
+        // 書籍本体を削除
+        $book->delete();
+
+        return redirect()
+            ->route('books.index')
+            ->with('success', '書籍を削除しました。');
     }
 
     // ISBN検索（Google Books API）
