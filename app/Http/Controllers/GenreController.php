@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Genre;
+use App\Http\Requests\GenreStoreRequest;
 
 class GenreController extends Controller
 {
@@ -11,7 +12,7 @@ class GenreController extends Controller
     public function index()
     {
         // 書籍数を含めて取得
-        $genres = Genre::withCount('books')->paginate(10);
+        $genres = Genre::withCount('books')->get();
 
         return view('genres.index', compact('genres'));
     }
@@ -32,9 +33,13 @@ class GenreController extends Controller
     }
 
     // ジャンル登録
-    public function store(Request $request)
+    public function store(GenreStoreRequest $request)
     {
         // バリデーション → 登録
+        Genre::create($request->validated());
+
+        return redirect()->route('genres.index')
+            ->with('success', 'ジャンルを登録しました。');
     }
 
     // ジャンル編集画面
