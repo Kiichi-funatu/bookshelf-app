@@ -19,7 +19,10 @@ class GenreController extends Controller
     // ジャンル詳細
     public function show(Genre $genre)
     {
-        // ジャンルに紐づく書籍一覧（ページネーション）
+        // ジャンルに紐づく書籍を10件ずつ取得
+        $books = $genre->books()->paginate(10);
+
+        return view('genres.show', compact('genre', 'books'));
     }
 
     // ジャンル登録画面
