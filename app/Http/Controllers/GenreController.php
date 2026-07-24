@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Genre;
 use App\Http\Requests\GenreStoreRequest;
+use App\Http\Requests\GenreUpdateRequest;
 
 class GenreController extends Controller
 {
@@ -46,12 +47,17 @@ class GenreController extends Controller
     public function edit(Genre $genre)
     {
         // 編集フォーム表示
+        return view('genres.edit', compact('genre'));
     }
 
     // ジャンル更新
-    public function update(Request $request, Genre $genre)
+    public function update(GenreUpdateRequest $request, Genre $genre)
     {
         // バリデーション → 更新
+        $genre->update($request->validated());
+
+        return redirect()->route('genres.index')
+            ->with('success', 'ジャンルを更新しました。');
     }
 
     // ジャンル削除
