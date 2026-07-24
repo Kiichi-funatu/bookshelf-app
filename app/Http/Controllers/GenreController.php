@@ -10,7 +10,10 @@ class GenreController extends Controller
     // ジャンル一覧
     public function index()
     {
-        // 書籍数付きで一覧表示
+        // 書籍数を含めて取得
+        $genres = Genre::withCount('books')->paginate(10);
+
+        return view('genres.index', compact('genres'));
     }
 
     // ジャンル詳細

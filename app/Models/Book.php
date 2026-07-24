@@ -32,7 +32,7 @@ class Book extends Model
     // ジャンル（多対多）
     public function genres()
     {
-        return $this->belongsToMany(Genre::class);
+        return $this->belongsToMany(Genre::class, 'book_genre');
     }
 
     // レビュー（1対多）

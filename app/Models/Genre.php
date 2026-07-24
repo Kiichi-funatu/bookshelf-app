@@ -14,7 +14,7 @@ class Genre extends Model
     // 書籍（多対多）
     public function books()
     {
-        return $this->belongsToMany(Book::class);
+        return $this->belongsToMany(Book::class, 'book_genre');
     }
 
     // 書籍数
