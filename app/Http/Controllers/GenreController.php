@@ -63,6 +63,15 @@ class GenreController extends Controller
     // ジャンル削除
     public function destroy(Genre $genre)
     {
-        // 書籍紐付きなら削除不可
-    }
+        // 書籍紐付きチェック
+        if ($genre->books()->exists()) {
+            return back()->with('error', 'このジャンルには書籍が紐づいているため削除できません。');
+        }
+
+        // 紐付きがない場合のみ削除
+        $genre->delete();
+
+        return redirect()->route('genres.index')
+            ->with('success', 'ジャンルを削除しました。');
+        }
 }
