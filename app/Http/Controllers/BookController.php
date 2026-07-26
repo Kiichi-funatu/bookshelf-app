@@ -169,16 +169,4 @@ class BookController extends Controller
     {
         // API 呼び出し → JSON返却 or フォーム初期値
     }
-
-    // ランキング（レビュー平均TOP10）
-    public function ranking()
-    {
-        // 平均評価の高い順に10件（仮）
-        $books = Book::withAvg('reviews', 'rating')
-        ->orderBy('reviews_avg_rating', 'desc')
-        ->take(10)
-        ->get();
-
-    return view('books.ranking', compact('books'));
-    }
 }

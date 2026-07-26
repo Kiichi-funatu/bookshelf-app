@@ -10,6 +10,7 @@ use App\Http\Controllers\ReadingPlanController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\RankingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,7 @@ Route::get('/', [BookController::class, 'index'])->name('books.index');
 Route::get('/books', [BookController::class, 'index']);
 
 // ランキング
-Route::get('/ranking', [BookController::class, 'ranking'])->name('ranking.index');
+Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
 
 // ISBN検索（応用）
 Route::get('/books/isbn/{isbn}', [BookController::class, 'isbnLookup'])->name('books.isbn.lookup');
