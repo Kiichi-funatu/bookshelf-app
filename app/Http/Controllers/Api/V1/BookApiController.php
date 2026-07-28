@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Http\Resources\Api\V1\BookResource;
+use App\Http\Resources\Api\V1\BookDetailResource;
 
 class BookApiController extends Controller
 {
@@ -37,4 +38,21 @@ class BookApiController extends Controller
 
         return BookResource::collection($books);
     }
+
+   public function show($bookId)
+    {
+        $book = Book::with([
+            'genres',
+            'reviews.user',   // 投稿者名を取得するため
+        ])->find($bookId);
+
+        if (!$book) {
+            return response()->json([
+                'message' => '指定された書籍は存在しません。',
+            ], 404);
+        }
+
+        return new BookDetailResource($book);
+    }
+
 }
