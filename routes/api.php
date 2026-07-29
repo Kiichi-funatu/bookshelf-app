@@ -21,6 +21,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/books/{book}', [BookApiController::class, 'show']);
 
     Route::post('/books', [BookApiController::class, 'store']);
+
+    Route::put('/books/{book}', [BookApiController::class, 'update']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

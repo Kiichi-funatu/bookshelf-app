@@ -8,6 +8,7 @@ use App\Models\Book;
 use App\Http\Resources\Api\V1\BookResource;
 use App\Http\Resources\Api\V1\BookDetailResource;
 use App\Http\Requests\Api\V1\StoreBookApiRequest;
+use App\Http\Requests\Api\V1\UpdateBookApiRequest;
 
 class BookApiController extends Controller
 {
@@ -78,5 +79,28 @@ class BookApiController extends Controller
             ->setStatusCode(201);
     }
 
+    public function update(UpdateBookApiRequest $request, Book $book)
+    {
+        // 存在チェック（Route Model Binding で自動）
+        if (!$book) {
+            return response()->json([
+                'message' => '指定された書籍は存在しません。',
+            ], 404);
+        }
 
+        $validated = $request->validated();
+
+        // 書籍更新
+        $book->update([
+            'title'          => $validated['title'],
+            'author'         => $validated['author'],
+            'isbn'           => $validated['isbn'],
+            'published_date' => $validated['published_date'] ?? null,
+        ]);
+
+        // ジャンル更新
+        $book->genres()->sync($validated['genre_ids']);
+
+        return new BookResource($book); // 200 OK
+    }
 }
