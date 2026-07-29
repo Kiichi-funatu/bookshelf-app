@@ -15,10 +15,15 @@ use App\Http\Controllers\Api\V1\BookApiController;
 |
 */
 Route::prefix('v1')->group(function () {
+    
     Route::get('/books', [BookApiController::class, 'index']);
+    
     Route::get('/books/{book}', [BookApiController::class, 'show']);
+
+    Route::post('/books', [BookApiController::class, 'store']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+

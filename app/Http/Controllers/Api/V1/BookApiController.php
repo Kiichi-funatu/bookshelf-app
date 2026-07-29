@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Http\Resources\Api\V1\BookResource;
 use App\Http\Resources\Api\V1\BookDetailResource;
+use App\Http\Requests\Api\V1\StoreBookApiRequest;
 
 class BookApiController extends Controller
 {
@@ -54,5 +55,28 @@ class BookApiController extends Controller
 
         return new BookDetailResource($book);
     }
+
+    public function store(StoreBookApiRequest $request)
+    {
+        $validated = $request->validated();
+
+        // 書籍登録
+        $book = Book::create([
+            'title'        => $validated['title'],
+            'author'       => $validated['author'],
+            'isbn'         => $validated['isbn'],
+            'published_date' => $validated['published_date'] ?? null,
+            'user_id'        => auth()->id() ?? 1,
+        ]);
+
+        // ジャンル紐付け（多対多）
+        $book->genres()->sync($validated['genre_ids']);
+
+        // 成功時は 201 Created
+        return (new BookResource($book))
+            ->response()
+            ->setStatusCode(201);
+    }
+
 
 }
