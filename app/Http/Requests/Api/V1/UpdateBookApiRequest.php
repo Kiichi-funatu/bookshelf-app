@@ -29,7 +29,7 @@ class UpdateBookApiRequest extends FormRequest
                 'required',
                 'string',
                 'max:20',
-                Rule::unique('books', 'isbn')->ignore($this->book->id),
+                Rule::unique('books', 'isbn')->ignore($this->route('book')),
             ],
             'published_date' => ['nullable', 'date'],
             'genre_ids'      => ['required', 'array'],

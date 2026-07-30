@@ -23,6 +23,8 @@ Route::prefix('v1')->group(function () {
     Route::post('/books', [BookApiController::class, 'store']);
 
     Route::put('/books/{book}', [BookApiController::class, 'update']);
+
+    Route::delete('/books/{book}', [BookApiController::class, 'destroy']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

@@ -79,8 +79,10 @@ class BookApiController extends Controller
             ->setStatusCode(201);
     }
 
-    public function update(UpdateBookApiRequest $request, Book $book)
+    public function update(UpdateBookApiRequest $request, $bookId)
     {
+        $book = Book::find($bookId);
+    
         // 存在チェック（Route Model Binding で自動）
         if (!$book) {
             return response()->json([
@@ -103,4 +105,24 @@ class BookApiController extends Controller
 
         return new BookResource($book); // 200 OK
     }
+
+    public function destroy($bookId)
+    {
+        $book = Book::find($bookId);
+
+        // 存在チェック（Route Model Binding）
+        if (!$book) {
+            return response()->json([
+                'message' => '指定された書籍は存在しません。',
+            ], 404);
+        }
+
+        // 書籍削除（関連データは外部キーの ON DELETE CASCADE で自動削除）
+        $book->delete();
+
+        return response()->json([
+            'message' => '書籍を削除しました。',
+        ], 200);
+    }
+
 }
