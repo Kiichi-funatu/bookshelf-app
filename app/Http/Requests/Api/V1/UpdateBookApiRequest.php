@@ -23,29 +23,37 @@ class UpdateBookApiRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'user_id'        => ['required', 'integer', 'exists:users,id'],
             'title'          => ['required', 'string', 'max:255'],
             'author'         => ['required', 'string', 'max:255'],
             'isbn'           => [
                 'required',
                 'string',
-                'max:20',
+                'size:13',
                 Rule::unique('books', 'isbn')->ignore($this->route('book')),
             ],
-            'published_date' => ['nullable', 'date'],
-            'genre_ids'      => ['required', 'array'],
-            'genre_ids.*'    => ['integer', 'exists:genres,id'],
+            'published_date' => ['required', 'date'],
+            'description'    => ['nullable', 'string'],
+            'image_url'      => ['nullable', 'url', 'max:255'],
+            'genres'         => ['required', 'array', 'min:1'],
+            'genres.*'       => ['integer', 'exists:genres,id'],
         ];
     }
 
     public function messages(): array
     {
         return [
+            'user_id.required'        => '登録者IDは必須です。',
+            'user_id.exists'          => '指定された登録者は存在しません。',
             'title.required'          => 'タイトルは必須です。',
             'author.required'         => '著者名は必須です。',
             'isbn.required'           => 'ISBNは必須です。',
-            'isbn.unique'             => 'このISBNは既に登録されています。',
-            'genre_ids.required'      => 'ジャンルは1つ以上選択してください。',
-            'genre_ids.*.exists'      => '指定されたジャンルが存在しません。',
+            'isbn.size'               => 'ISBNは13桁で入力してください。',
+            'isbn.unique'             => 'そのISBNは既に使用されています。',
+            'published_date.required' => '出版日は必須です。',
+            'genres.required'         => 'ジャンルは1つ以上選択してください。',
+            'genres.min'              => 'ジャンルは1つ以上選択してください。',
+            'genres.*.exists'         => '指定されたジャンルが存在しません。',
         ];
     }
 }

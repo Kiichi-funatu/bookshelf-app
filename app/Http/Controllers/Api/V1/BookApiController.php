@@ -39,7 +39,7 @@ class BookApiController extends Controller
         }
 
         // ページネーション
-        $perPage = $validated['per_page'] ?? 10;
+        $perPage = $validated['per_page'] ?? 20;
 
         $books = $query->paginate($perPage);
 
@@ -77,7 +77,7 @@ class BookApiController extends Controller
         ]);
 
         // ジャンル紐付け（多対多）
-        $book->genres()->sync($validated['genre_ids']);
+        $book->genres()->sync($validated['genres']);
 
         // 成功時は 201 Created
         return (new BookResource($book))
@@ -107,7 +107,7 @@ class BookApiController extends Controller
         ]);
 
         // ジャンル更新
-        $book->genres()->sync($validated['genre_ids']);
+        $book->genres()->sync($validated['genres']);
 
         return new BookResource($book); // 200 OK
     }
@@ -119,16 +119,14 @@ class BookApiController extends Controller
         // 存在チェック（Route Model Binding）
         if (!$book) {
             return response()->json([
-                'message' => '指定された書籍は存在しません。',
+                'message' => '書籍が見つかりませんでした。',
             ], 404);
         }
 
         // 書籍削除（関連データは外部キーの ON DELETE CASCADE で自動削除）
         $book->delete();
 
-        return response()->json([
-            'message' => '書籍を削除しました。',
-        ], 200);
+        return response()->noContent(); // 204 No Content
     }
 
 }

@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('books', function (Blueprint $table) {
             $table->string('isbn')->nullable()->change();
-            $table->date('published_date')->nullable()->change();
         });
     }
 
@@ -24,7 +23,6 @@ return new class extends Migration
     {
         Schema::table('books', function (Blueprint $table) {
             $table->string('isbn')->nullable(false)->change();
-            $table->date('published_date')->nullable(false)->change();
         });
     }
 };
