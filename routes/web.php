@@ -98,16 +98,16 @@ Route::middleware('auth')->group(function () {
     | 読書計画 (Reading Plans)
     |-----------------------------------------
     */
-    Route::get('/reading-plans', [ReadingPlanController::class, 'index'])->name('reading_plans.index');
-    Route::get('/reading-plans/create', [ReadingPlanController::class, 'create'])->name('reading_plans.create');
-    Route::post('/reading-plans', [ReadingPlanController::class, 'store'])->name('reading_plans.store');
+    Route::get('/reading-plans', [ReadingPlanController::class, 'index'])->name('reading-plans.index');
+    Route::get('/reading-plans/create', [ReadingPlanController::class, 'create'])->name('reading-plans.create');
+    Route::post('/reading-plans', [ReadingPlanController::class, 'store'])->name('reading-plans.store');
 
-    Route::get('/reading-plans/{plan}/edit', [ReadingPlanController::class, 'edit'])->name('reading_plans.edit');
-    Route::put('/reading-plans/{plan}', [ReadingPlanController::class, 'update'])->name('reading_plans.update');
-    Route::delete('/reading-plans/{plan}', [ReadingPlanController::class, 'destroy'])->name('reading_plans.destroy');
+    Route::get('/reading-plans/{plan}/edit', [ReadingPlanController::class, 'edit'])->name('reading-plans.edit');
+    Route::put('/reading-plans/{plan}', [ReadingPlanController::class, 'update'])->name('reading-plans.update');
+    Route::delete('/reading-plans/{plan}', [ReadingPlanController::class, 'destroy'])->name('reading-plans.destroy');
 
     // 読了ボタン
-    Route::post('/reading-plans/{plan}/complete', [ReadingPlanController::class, 'complete'])->name('reading_plans.complete');
+    Route::post('/reading-plans/{plan}/complete', [ReadingPlanController::class, 'complete'])->name('reading-plans.complete');
 
     /*
     |-----------------------------------------

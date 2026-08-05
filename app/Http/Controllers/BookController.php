@@ -6,13 +6,15 @@ use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Models\ReviewLike;
 use App\Models\Genre;
+use Illuminate\View\View; 
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use App\Http\Requests\SearchBooksRequest;
 
 class BookController extends Controller
 {
     // 書籍一覧（検索・絞り込み・ソート・ページネーション）
-    public function index(Request $request)
+    /*public function index(Request $request)
     {
         // keyword, genre, sort を使った検索処理を書く
         $books = Book::with(['genres'])
@@ -21,6 +23,57 @@ class BookController extends Controller
         ->paginate(10);
 
     return view('books.index', compact('books'));
+    }*/
+
+    public function index(SearchBooksRequest $request): View
+    {
+        $validated = $request->validated();
+
+        $query = Book::query()
+            ->with(['genres'])
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews');
+
+        // キーワード検索
+        if (!empty($validated['keyword'])) {
+            $query->where(function ($q) use ($validated) {
+                $q->where('title', 'like', '%' . $validated['keyword'] . '%')
+                ->orWhere('author', 'like', '%' . $validated['keyword'] . '%');
+            });
+        }
+
+        // ジャンル絞り込み（Bladeは genre）
+        if (!empty($validated['genre'])) {
+            $query->whereHas('genres', function ($q) use ($validated) {
+                $q->where('genres.id', $validated['genre']);
+            });
+        }
+
+        // 並び順ソート（Blade準拠）
+        if (!empty($validated['sort'])) {
+            switch ($validated['sort']) {
+                case 'newest':
+                    $query->orderBy('published_date', 'desc');
+                    break;
+                case 'oldest':
+                    $query->orderBy('published_date', 'asc');
+                    break;
+                case 'rating':
+                    $query->orderBy('reviews_avg_rating', 'desc');
+                    break;
+                case 'title':
+                    $query->orderBy('title', 'asc');
+                    break;
+            }
+        }
+
+        // ページネーション（検索条件を引き継ぐ）
+        $books = $query->paginate(10)->appends($validated);
+
+        // ジャンル一覧（プルダウン用）
+        $genres = Genre::all();
+
+        return view('books.index', compact('books', 'genres'));
     }
 
     // 書籍詳細
