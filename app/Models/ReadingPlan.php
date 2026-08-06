@@ -33,4 +33,9 @@ class ReadingPlan extends Model
     {
         return $this->belongsTo(Book::class);
     }
+
+    public function getTargetDateAttribute()
+    {
+        return $this->due_date;
+    }
 }
