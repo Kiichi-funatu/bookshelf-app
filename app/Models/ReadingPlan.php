@@ -17,7 +17,9 @@ class ReadingPlan extends Model
     ];
 
     protected $casts = [
+        'status' => \App\Enums\ReadingPlanStatus::class,
         'due_date' => 'date',
+        'completed_at' => 'date',
     ];
 
     // ユーザー
