@@ -24,7 +24,8 @@ class SearchBooksRequest extends FormRequest
         return [
             'keyword' => ['nullable', 'string', 'max:255'],
             'genre'   => ['nullable', 'integer', 'exists:genres,id'],
-            'sort'    => ['nullable', 'string', 'in:newest,oldest,rating,title'],
+            //'sort'    => ['nullable', 'string', 'in:newest,oldest,rating,title'],
+            'sort'    => ['nullable', 'string', 'in:latest,oldest,rating,title'],
             'page'    => ['nullable', 'integer', 'min:1'],
         ];
     }
@@ -33,6 +34,7 @@ class SearchBooksRequest extends FormRequest
     {
         return [
             'keyword.string' => 'キーワードは文字列で入力してください。',
+            'keyword.max' => 'キーワードは255文字以内で入力してください。',
             'genre.integer' => 'ジャンルIDは整数で入力してください。',
             'genre.exists' => '指定されたジャンルは存在しません。',
             'sort.in' => '並び順の指定が不正です。',

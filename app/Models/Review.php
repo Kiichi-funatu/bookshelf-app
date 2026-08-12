@@ -38,4 +38,9 @@ class Review extends Model
     {
         return $this->likes()->where('user_id', $user->id)->exists();
     }
+
+    public function likes()
+    {
+        return $this->belongsToMany(User::class, 'review_likes');
+    }
 }

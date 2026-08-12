@@ -15,7 +15,8 @@ class BookSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::first(); // 山田太郎
+        $users = User::all(); // ランダムユーザー割当のため
+        $genres = Genre::all();
 
         $books = [
             [
@@ -102,11 +103,11 @@ class BookSeeder extends Seeder
                 ['isbn' => $b['isbn']],
                 [
                     'title' => $b['title'],
-                    'author' => $b['author'],
-                    'published_date' => $b['published_date'],
-                    'description' => $b['title'] . ' の説明文です。',
-                    'image_url' => "https://placehold.co/200x300/e2e8f0/475569?text=" . ($i + 1),
-                    'user_id' => $user->id,
+                'author' => $b['author'],
+                'published_date' => $b['published_date'], // 応用版: nullable だが既存データはそのまま使える
+                'description' => $b['title'] . ' の説明文です。',
+                'image_url' => "https://placehold.co/200x300/e2e8f0/475569?text=" . ($i + 1),
+                'user_id' => $users->random()->id, // ★ 応用版: ランダムユーザーに変更
                 ]
             );
 

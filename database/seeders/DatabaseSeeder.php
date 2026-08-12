@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             ReviewSeeder::class,       // 4. レビュー（32件）
             FavoriteSeeder::class,     // 5. お気に入り（各ユーザー3〜5冊）
             ReviewLikeSeeder::class,   // 6. いいね（各レビュー0〜3人）
+            ReadingPlanSeeder::class,
         ]);
     }
 }
