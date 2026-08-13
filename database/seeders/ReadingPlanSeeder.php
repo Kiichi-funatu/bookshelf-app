@@ -65,6 +65,33 @@ class ReadingPlanSeeder extends Seeder
                 'due_date' => Carbon::today()->addDays(rand(2, 7)),
                 'status' => 'planned',
             ]);
+
+            // ===== 通知テスト用データ =====
+
+            // 今日が期限（on_due_date）
+            ReadingPlan::create([
+                'user_id' => $mainUser->id,
+                'book_id' => $books->first()->id,
+                'due_date' => Carbon::today(),
+                'status' => 'in_progress',
+            ]);
+
+            // 3日前が期限（three_days_before）
+            ReadingPlan::create([
+                'user_id' => $mainUser->id,
+                'book_id' => $books->get(1)->id,
+                'due_date' => Carbon::today()->addDays(3),
+                'status' => 'planned',
+            ]);
+
+            // 3日後が期限（three_days_after）
+            ReadingPlan::create([
+                'user_id' => $mainUser->id,
+                'book_id' => $books->get(2)->id,
+                'due_date' => Carbon::today()->subDays(3),
+                'status' => 'expired',
+            ]);
+
         }
     }
 }
