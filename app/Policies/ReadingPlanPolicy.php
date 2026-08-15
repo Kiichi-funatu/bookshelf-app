@@ -48,6 +48,11 @@ class ReadingPlanPolicy
         return $user->id === $plan->user_id;
     }
 
+    public function complete(User $user, ReadingPlan $plan): bool
+    {
+        return $user->id === $plan->user_id;
+    }
+
     /**
      * Determine whether the user can restore the model.
      */

@@ -16,17 +16,19 @@ use App\Http\Controllers\Api\V1\BookApiController;
 */
 Route::prefix('v1')->group(function () {
     
+    // 公開API（閲覧のみ）
     Route::get('/books', [BookApiController::class, 'index']);
-    
     Route::get('/books/{book}', [BookApiController::class, 'show']);
 
-    Route::post('/books', [BookApiController::class, 'store']);
-
-    Route::put('/books/{book}', [BookApiController::class, 'update']);
-
-    Route::delete('/books/{book}', [BookApiController::class, 'destroy']);
+    // 認証必須API（作成・編集・削除）
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/books', [BookApiController::class, 'store']);
+        Route::put('/books/{book}', [BookApiController::class, 'update']);
+        Route::delete('/books/{book}', [BookApiController::class, 'destroy']);
+    });
 });
 
+// ログインユーザー情報（認証必須）
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

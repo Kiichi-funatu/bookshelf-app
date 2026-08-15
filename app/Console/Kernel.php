@@ -56,6 +56,22 @@ class Kernel extends ConsoleKernel
             }
 
         })->everyMinute();//(本番環境)->daily();
+
+        //（期限切れステータス自動更新）
+        $schedule->call(function () {
+
+            $today = now()->startOfDay();
+
+            \DB::transaction(function () use ($today) {
+
+                \App\Models\ReadingPlan::whereDate('due_date', '<', $today)
+                    ->whereNull('completed_at')
+                    ->update([
+                        'status' => 'expired',
+                    ]);
+            });
+
+        })->everyMinute(); // 本番は ->daily();
     }
 
     /**

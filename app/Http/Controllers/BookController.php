@@ -10,6 +10,7 @@ use Illuminate\View\View;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use App\Http\Requests\SearchBooksRequest;
+use Illuminate\Support\Facades\Http;
 
 class BookController extends Controller
 {
@@ -24,7 +25,13 @@ class BookController extends Controller
 
     return view('books.index', compact('books'));
     }*/
-
+    
+    /**
+     * 書籍一覧（検索・絞り込み・ソート・ページネーション）
+     *
+     * @param SearchBooksRequest $request
+     * @return View
+     */
     public function index(SearchBooksRequest $request): View
     {
         $validated = $request->validated();
@@ -76,8 +83,13 @@ class BookController extends Controller
         return view('books.index', compact('books', 'genres'));
     }
 
-    // 書籍詳細
-    public function show(Book $book)
+    /**
+     * 書籍詳細
+     *
+     * @param Book $book
+     * @return View
+     */
+    public function show(Book $book): View
     {
         // Blade が使うリレーションをすべてロード
         $book->load([
@@ -121,16 +133,25 @@ class BookController extends Controller
     }
 
 
-    // 書籍登録画面
-    public function create()
+    /**
+     * 書籍登録画面
+     *
+     * @return View
+     */
+    public function create(): View
     {
         $genres = Genre::all(); // Blade の $genres に合わせる
 
         return view('books.create', compact('genres'));
     }
 
-    // 書籍登録
-    public function store(StoreBookRequest $request)
+    /**
+     * 書籍登録
+     *
+     * @param StoreBookRequest $request
+     * @return RedirectResponse
+     */
+    public function store(StoreBookRequest $request): RedirectResponse
     {
         // ★ ここで自動的にバリデーション済み
         $validated = $request->validated();
@@ -153,8 +174,13 @@ class BookController extends Controller
             ->with('success', '書籍を登録しました');
     }
 
-    // 書籍編集画面
-    public function edit(Book $book)
+    /**
+     * 書籍編集画面
+     *
+     * @param Book $book
+     * @return View
+     */
+    public function edit(Book $book): View
     {
         // 認可（作成者のみ）
         $this->authorize('update', $book);
@@ -164,8 +190,14 @@ class BookController extends Controller
         return view('books.edit', compact('book', 'genres'));
     }
 
-    // 書籍更新
-    public function update(UpdateBookRequest $request, Book $book)
+    /**
+     * 書籍更新
+     *
+     * @param UpdateBookRequest $request
+     * @param Book $book
+     * @return RedirectResponse
+     */
+    public function update(UpdateBookRequest $request, Book $book): RedirectResponse
     {
         // 認可（作成者のみ）
         $this->authorize('update', $book);
@@ -189,8 +221,13 @@ class BookController extends Controller
             ->with('success', '書籍を更新しました');
     }
 
-    // 書籍削除
-    public function destroy(Book $book)
+    /**
+     * 書籍削除
+     *
+     * @param Book $book
+     * @return RedirectResponse
+     */
+    public function destroy(Book $book): RedirectResponse
     {
         // 認可（作成者本人のみ）
         $this->authorize('delete', $book);
@@ -217,9 +254,40 @@ class BookController extends Controller
             ->with('success', '書籍を削除しました。');
     }
 
-    // ISBN検索（Google Books API）
+    /**
+     * ISBN検索（Google Books API）
+     *
+     * @param string $isbn
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function isbnLookup($isbn)
     {
-        // API 呼び出し → JSON返却 or フォーム初期値
+        // Google Books API 呼び出し
+        $response = Http::get('https://www.googleapis.com/books/v1/volumes', [
+            'q' => 'isbn:' . $isbn,
+        ]);
+
+        // APIエラー時
+        if ($response->failed()) {
+            return response()->json(['error' => 'Google Books API の呼び出しに失敗しました'], 500);
+        }
+
+        $data = $response->json();
+
+        // 書籍が見つからない場合
+        if (empty($data['items'][0])) {
+            return response()->json(['error' => '該当する書籍が見つかりませんでした'], 404);
+        }
+
+        $book = $data['items'][0]['volumeInfo'];
+
+        // Blade が使う形式に整形して返す
+        return response()->json([
+            'title'          => $book['title'] ?? null,
+            'author'         => $book['authors'][0] ?? null,
+            'published_date' => $book['publishedDate'] ?? null,
+            'description'    => $book['description'] ?? null,
+            'image_url'      => $book['imageLinks']['thumbnail'] ?? null,
+        ]);
     }
 }

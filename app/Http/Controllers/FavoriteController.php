@@ -7,8 +7,14 @@ use App\Models\Book;
 
 class FavoriteController extends Controller
 {
-    // お気に入り一覧
-    public function index()
+    /**
+     * お気に入り一覧
+     *
+     * ログインユーザーのお気に入り書籍を 10 件ずつ表示する。
+     *
+     * @return View
+     */
+    public function index(): View
     {
         // 未ログイン → /login にリダイレクト（middleware で保証）
         $user = Auth::user();
@@ -19,8 +25,15 @@ class FavoriteController extends Controller
         return view('favorites.index', compact('books'));
     }
 
-    // お気に入りトグル
-    public function toggle(Book $book)
+    /**
+     * お気に入りトグル（追加／解除）
+     *
+     * すでにお気に入りなら解除、未登録なら追加する。
+     *
+     * @param Book $book
+     * @return RedirectResponse
+     */
+    public function toggle(Book $book): RedirectResponse
     {
         $user = auth()->user();
 

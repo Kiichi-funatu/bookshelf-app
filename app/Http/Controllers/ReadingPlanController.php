@@ -13,26 +13,71 @@ use App\Enums\ReadingPlanStatus;
 
 class ReadingPlanController extends Controller
 {
-    // 読書計画一覧
+    /**
+     * 読書計画一覧（検索・フィルタ・ソート）
+     *
+     * @param Request $request
+     * @return View
+     */
     public function index(Request $request): View
     {
-        $currentStatus = $request->input('status');
+        // Blade が使う検索条件
+        $currentStatus = $request->input('status');     // active / completed / expired
+        $keyword       = $request->input('keyword');    // 書籍タイトル検索
+        $sort          = $request->input('sort', 'due_date_asc'); // デフォルト
 
+        // 自分の計画のみ
         $query = ReadingPlan::query()
             ->where('user_id', auth()->id())
-            ->with('book')
-            ->orderBy('due_date');
+            ->with('book');
 
-        if ($currentStatus) {
-            $query->where('status', $currentStatus);
+        // 状態フィルタ
+        if ($currentStatus === ReadingPlanStatus::Planned->value) {
+            $query->where('status', ReadingPlanStatus::Planned);
+        } elseif ($currentStatus === ReadingPlanStatus::Completed->value) {
+            $query->where('status', ReadingPlanStatus::Completed);
+        } elseif ($currentStatus === ReadingPlanStatus::Expired->value) {
+            $query->where('status', ReadingPlanStatus::Expired);
         }
 
-        $readingPlans = $query->get();
+        // キーワード検索（書籍タイトル）
+        if (!empty($keyword)) {
+            $query->whereHas('book', function ($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%");
+            });
+        }
 
-        return view('reading-plans.index', compact('readingPlans', 'currentStatus'));
+        // ソート
+        switch ($sort) {
+            case 'due_date_desc':
+                $query->orderBy('due_date', 'desc');
+                break;
+            case 'created_desc':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'created_asc':
+                $query->orderBy('created_at', 'asc');
+                break;
+            default:
+                $query->orderBy('due_date', 'asc'); // due_date_asc
+        }
+
+        // ページネーション（検索条件を引き継ぐ）
+        $readingPlans = $query->paginate(10)->appends($request->query());
+
+        return view('reading-plans.index', compact(
+            'readingPlans',
+            'currentStatus',
+            'keyword',
+            'sort'
+        ));
     }
 
-    // 読書計画作成画面
+    /**
+     * 読書計画作成画面
+     *
+     * @return View
+     */
     public function create(): View
     {
         $books = Book::orderBy('title')->get();
@@ -40,7 +85,12 @@ class ReadingPlanController extends Controller
         return view('reading-plans.create', compact('books'));
     }
 
-    // 読書計画登録
+    /**
+     * 読書計画登録
+     *
+     * @param ReadingPlanStoreRequest $request
+     * @return RedirectResponse
+     */
     public function store(ReadingPlanStoreRequest $request): RedirectResponse
     {
         $validated = $request->validated();
@@ -57,7 +107,12 @@ class ReadingPlanController extends Controller
             ->with('success', '読書計画を登録しました。');
     }
 
-    // 読書計画編集画面
+    /**
+     * 読書計画編集画面
+     *
+     * @param ReadingPlan $plan
+     * @return View
+     */
     public function edit(ReadingPlan $plan): View
     {
         $this->authorize('update', $plan);
@@ -65,7 +120,13 @@ class ReadingPlanController extends Controller
         return view('reading-plans.edit', ['readingPlan' => $plan]);
     }
 
-    // 読書計画更新
+    /**
+     * 読書計画更新
+     *
+     * @param ReadingPlanUpdateRequest $request
+     * @param ReadingPlan $plan
+     * @return RedirectResponse
+     */
     public function update(ReadingPlanUpdateRequest $request, ReadingPlan $plan): RedirectResponse
     {
         $this->authorize('update', $plan);
@@ -81,7 +142,12 @@ class ReadingPlanController extends Controller
             ->with('success', '読書計画を更新しました。');
     }
 
-    // 読書計画削除
+    /**
+     * 読書計画削除
+     *
+     * @param ReadingPlan $plan
+     * @return RedirectResponse
+     */
     public function destroy(ReadingPlan $plan): RedirectResponse
     {
         $this->authorize('delete', $plan);
@@ -93,7 +159,12 @@ class ReadingPlanController extends Controller
             ->with('success', '読書計画を削除しました。');
     }
 
-    // 読了ボタン
+    /**
+     * 読了状態に更新
+     *
+     * @param ReadingPlan $plan
+     * @return RedirectResponse
+     */
     public function complete(ReadingPlan $plan): RedirectResponse
     {
         $this->authorize('complete', $plan);
