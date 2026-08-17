@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Book;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+
 
 class FavoriteController extends Controller
 {

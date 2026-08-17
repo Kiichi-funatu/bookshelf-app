@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 use App\Models\Review;
 use App\Models\Book;
 use App\Models\Genre;
 
 class ReportController extends Controller
 {
+    /**
+     * マイ読書レポート画面を表示する
+     *
+     * @return View
+     */
     public function index(): View
     {
         $userId = auth()->id();

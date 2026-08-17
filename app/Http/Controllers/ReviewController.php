@@ -7,11 +7,19 @@ use App\Models\Review;
 use App\Models\Book;
 use App\Http\Requests\StoreReviewRequest;
 use App\Http\Requests\UpdateReviewRequest;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class ReviewController extends Controller
 {
-    // レビュー投稿
-    public function store(StoreReviewRequest $request, Book $book)
+    /**
+     * レビュー投稿処理
+     *
+     * @param StoreReviewRequest $request
+     * @param Book $book
+     * @return RedirectResponse
+     */
+    public function store(StoreReviewRequest $request, Book $book): RedirectResponse
     {
         // 未ログインならリダイレクト（仕様書どおり）
         $this->authorize('create', Review::class);
@@ -28,8 +36,13 @@ class ReviewController extends Controller
             ->with('success', 'レビューを投稿しました');
     }
 
-    // レビュー編集画面
-    public function edit(Review $review)
+    /**
+     * レビュー編集画面を表示する
+     *
+     * @param Review $review
+     * @return View
+     */
+    public function edit(Review $review): View
     {
         // 認可（投稿者本人のみ）
         $this->authorize('update', $review);
@@ -37,8 +50,14 @@ class ReviewController extends Controller
         return view('reviews.edit', compact('review'));
     }
 
-    // レビュー更新
-    public function update(UpdateReviewRequest $request, Review $review)
+    /**
+     * レビュー更新処理
+     *
+     * @param UpdateReviewRequest $request
+     * @param Review $review
+     * @return RedirectResponse
+     */
+    public function update(UpdateReviewRequest $request, Review $review): RedirectResponse
     {
         $this->authorize('update', $review);
 
@@ -53,8 +72,13 @@ class ReviewController extends Controller
             ->with('success', 'レビューを更新しました');
     }
 
-    // レビュー削除
-    public function destroy(Review $review)
+    /**
+     * レビュー削除処理
+     *
+     * @param Review $review
+     * @return RedirectResponse
+     */
+    public function destroy(Review $review): RedirectResponse
     {
         // 認可（投稿者本人のみ）
         $this->authorize('delete', $review);
@@ -69,8 +93,13 @@ class ReviewController extends Controller
             ->with('success', 'レビューを削除しました');
     }
 
-    // レビューいいねトグル
-    public function toggleLike(Review $review)
+    /**
+     * レビューのいいねをトグルする
+     *
+     * @param Review $review
+     * @return RedirectResponse
+     */
+    public function toggleLike(Review $review): RedirectResponse
     {
         // 認証必須（middleware('auth') で保証済み）
         $user = auth()->user();

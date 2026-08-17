@@ -9,7 +9,9 @@ use App\Enums\ReadingPlanStatus;
 class ReadingPlanUpdateRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * 認可（ログイン必須）
+     *
+     * @return bool
      */
     public function authorize(): bool
     {
@@ -17,9 +19,9 @@ class ReadingPlanUpdateRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * バリデーションルール
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
@@ -43,6 +45,11 @@ class ReadingPlanUpdateRequest extends FormRequest
         ];
     }
 
+    /**
+     * バリデーションメッセージ
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

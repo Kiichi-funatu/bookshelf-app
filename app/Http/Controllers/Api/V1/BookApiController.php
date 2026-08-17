@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Models\Book;
 use App\Http\Resources\Api\V1\BookResource;
 use App\Http\Resources\Api\V1\BookDetailResource;
@@ -13,7 +15,13 @@ use App\Http\Requests\Api\V1\SearchBooksApiRequest;
 
 class BookApiController extends Controller
 {
-    public function index(SearchBooksApiRequest $request)
+    /**
+     * 書籍一覧（検索・絞り込み・ページネーション）
+     *
+     * @param SearchBooksApiRequest $request
+     * @return AnonymousResourceCollection
+     */
+    public function index(SearchBooksApiRequest $request): AnonymousResourceCollection
     {
         $validated = $request->validated();
 
@@ -46,8 +54,13 @@ class BookApiController extends Controller
         return BookResource::collection($books);
     }
 
-
-   public function show($bookId)
+   /**
+     * 書籍詳細
+     *
+     * @param int $bookId
+     * @return JsonResource|JsonResponse
+     */
+   public function show(int $bookId): JsonResource|JsonResponse
     {
         $book = Book::with([
             'genres',
@@ -63,7 +76,13 @@ class BookApiController extends Controller
         return new BookDetailResource($book);
     }
 
-    public function store(StoreBookApiRequest $request)
+    /**
+     * 書籍登録
+     *
+     * @param StoreBookApiRequest $request
+     * @return JsonResponse
+     */
+    public function store(StoreBookApiRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
@@ -85,7 +104,14 @@ class BookApiController extends Controller
             ->setStatusCode(201);
     }
 
-    public function update(UpdateBookApiRequest $request, $bookId)
+    /**
+     * 書籍更新
+     *
+     * @param UpdateBookApiRequest $request
+     * @param int $bookId
+     * @return JsonResource|JsonResponse
+     */
+    public function update(UpdateBookApiRequest $request, int $bookId): JsonResource|JsonResponse
     {
         $book = Book::find($bookId);
     
@@ -112,7 +138,13 @@ class BookApiController extends Controller
         return new BookResource($book); // 200 OK
     }
 
-    public function destroy($bookId)
+    /**
+     * 書籍削除
+     *
+     * @param int $bookId
+     * @return JsonResponse
+     */
+    public function destroy(int $bookId): JsonResponse
     {
         $book = Book::find($bookId);
 

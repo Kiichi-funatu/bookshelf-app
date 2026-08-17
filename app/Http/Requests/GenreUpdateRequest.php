@@ -7,7 +7,9 @@ use Illuminate\Foundation\Http\FormRequest;
 class GenreUpdateRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * リクエストの認可判定
+     *
+     * @return bool
      */
     public function authorize(): bool
     {
@@ -15,9 +17,9 @@ class GenreUpdateRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * バリデーションルール
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
@@ -32,6 +34,12 @@ class GenreUpdateRequest extends FormRequest
         ];
     }
 
+    
+    /**
+     * バリデーションメッセージ
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

@@ -8,6 +8,7 @@ use App\Models\Review;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -15,8 +16,6 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
      * @var array<int, string>
      */
     protected $fillable = [
@@ -26,8 +25,6 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
      * @var array<int, string>
      */
     protected $hidden = [
@@ -36,8 +33,6 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
-     *
      * @var array<string, string>
      */
     protected $casts = [
@@ -45,22 +40,42 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function favoriteBooks()
+    /**
+     * お気に入り書籍（多対多）
+     *
+     * @return BelongsToMany<Book>
+     */
+    public function favoriteBooks(): BelongsToMany
     {
         return $this->belongsToMany(Book::class, 'favorites');
     }
 
-    public function reviewLikes()
+    /**
+     * いいねしたレビュー（多対多）
+     *
+     * @return BelongsToMany<Review>
+     */
+    public function reviewLikes(): BelongsToMany
     {
         return $this->belongsToMany(Review::class, 'review_likes');
     }
 
-    public function likedReviews()
+    /**
+     * いいねしたレビュー（エイリアス）
+     *
+     * @return BelongsToMany<Review>
+     */
+    public function likedReviews(): BelongsToMany
     {
         return $this->belongsToMany(Review::class, 'review_likes');
     }
 
-    public function favorites()
+    /**
+     * お気に入り書籍（タイムスタンプ付き）
+     *
+     * @return BelongsToMany<Book>
+     */
+    public function favorites(): BelongsToMany
     {
         return $this->belongsToMany(Book::class, 'favorites')
                     ->withTimestamps();

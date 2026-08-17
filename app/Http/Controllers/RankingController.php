@@ -4,10 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Book;
+use Illuminate\Contracts\View\View;
+
 
 class RankingController extends Controller
 {
-    public function index()
+    /**
+     * レビュー平均評価のランキング（TOP10）を表示する
+     *
+     * @return View
+     */
+    public function index(): View
     {
         // レビュー平均評価のTOP10（レビューがある書籍のみ）
         $rankedBooks = Book::withAvg('reviews', 'rating')

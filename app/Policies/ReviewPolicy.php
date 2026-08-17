@@ -9,23 +9,33 @@ use Illuminate\Auth\Access\Response;
 class ReviewPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * レビュー一覧の閲覧権限（誰でも閲覧可能）
+     *
+     * @param User $user
+     * @return bool
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
-     * Determine whether the user can view the model.
+     * レビュー詳細の閲覧権限（誰でも閲覧可能）
+     *
+     * @param User $user
+     * @param Review $review
+     * @return bool
      */
     public function view(User $user, Review $review): bool
     {
-        //
+        return true;
     }
 
     /**
-     * Determine whether the user can create models.
+     * レビュー作成権限（ログイン必須）
+     *
+     * @param User|null $user
+     * @return bool
      */
     public function create(?User $user): bool
     {
@@ -33,7 +43,11 @@ class ReviewPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * レビュー編集権限（投稿者本人のみ）
+     *
+     * @param User|null $user
+     * @param Review $review
+     * @return bool
      */
     public function update(?User $user, Review $review): bool
     {
@@ -41,7 +55,11 @@ class ReviewPolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * レビュー削除権限（投稿者本人のみ）
+     *
+     * @param User|null $user
+     * @param Review $review
+     * @return bool
      */
     public function delete(?User $user, Review $review): bool
     {
@@ -49,18 +67,26 @@ class ReviewPolicy
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * レビュー復元（未使用のため false）
+     *
+     * @param User $user
+     * @param Review $review
+     * @return bool
      */
     public function restore(User $user, Review $review): bool
     {
-        //
+        return false;
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * レビュー強制削除（未使用のため false）
+     *
+     * @param User $user
+     * @param Review $review
+     * @return bool
      */
     public function forceDelete(User $user, Review $review): bool
     {
-        //
+        return false;
     }
 }

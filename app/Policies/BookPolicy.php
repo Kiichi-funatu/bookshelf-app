@@ -9,7 +9,10 @@ use Illuminate\Auth\Access\Response;
 class BookPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * 書籍一覧の閲覧権限（誰でも閲覧可能）
+     *
+     * @param User $user
+     * @return bool
      */
     public function viewAny(User $user): bool
     {
@@ -17,15 +20,22 @@ class BookPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * 書籍詳細の閲覧権限（誰でも閲覧可能）
+     *
+     * @param User $user
+     * @param Book $book
+     * @return bool
      */
     public function view(User $user, Book $book): bool
     {
         return true;
     }
 
-    /**
-     * Determine whether the user can create models.
+   /**
+     * 書籍作成権限（ログイン必須）
+     *
+     * @param User $user
+     * @return bool
      */
     public function create(User $user): bool
     {
@@ -33,7 +43,11 @@ class BookPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * 書籍編集権限（作成者のみ）
+     *
+     * @param User $user
+     * @param Book $book
+     * @return bool
      */
     public function update(User $user, Book $book): bool
     {
@@ -41,7 +55,11 @@ class BookPolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * 書籍削除権限（作成者のみ）
+     *
+     * @param User $user
+     * @param Book $book
+     * @return bool
      */
     public function delete(User $user, Book $book): bool
     {
@@ -49,7 +67,11 @@ class BookPolicy
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * 書籍復元（未使用のため false）
+     *
+     * @param User $user
+     * @param Book $book
+     * @return bool
      */
     public function restore(User $user, Book $book): bool
     {
@@ -57,7 +79,11 @@ class BookPolicy
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * 書籍強制削除（未使用のため false）
+     *
+     * @param User $user
+     * @param Book $book
+     * @return bool
      */
     public function forceDelete(User $user, Book $book): bool
     {

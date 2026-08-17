@@ -8,7 +8,9 @@ use Illuminate\Validation\Rule;
 class UpdateBookApiRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * API リクエストの認可判定
+     *
+     * @return bool
      */
     public function authorize(): bool
     {
@@ -16,9 +18,9 @@ class UpdateBookApiRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * バリデーションルール
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
@@ -40,6 +42,11 @@ class UpdateBookApiRequest extends FormRequest
         ];
     }
 
+    /**
+     * バリデーションメッセージ
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

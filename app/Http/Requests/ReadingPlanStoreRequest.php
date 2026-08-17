@@ -10,18 +10,19 @@ use App\Enums\ReadingPlanStatus;
 class ReadingPlanStoreRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * 認可（ログイン必須）
+     *
+     * @return bool
      */
-    // 認可（ログイン必須）
     public function authorize(): bool
     {
         return auth()->check();
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * バリデーションルール
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
@@ -40,6 +41,11 @@ class ReadingPlanStoreRequest extends FormRequest
         ];
     }
 
+    /**
+     * バリデーションメッセージ
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

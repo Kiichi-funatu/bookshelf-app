@@ -9,8 +9,12 @@ class Notification extends Model
 {
     use HasFactory;
 
-    // 既読チェック
-    public function isRead()
+    /**
+     * 既読チェック
+     *
+     * @return bool
+     */
+    public function isRead(): bool
     {
         return $this->read_at !== null;
     }

@@ -8,7 +8,9 @@ use Illuminate\Validation\Rule;
 class UpdateBookRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * 認可判定（書籍更新はログイン必須）
+     *
+     * @return bool
      */
     public function authorize(): bool
     {
@@ -16,9 +18,9 @@ class UpdateBookRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * バリデーションルール
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
@@ -42,6 +44,11 @@ class UpdateBookRequest extends FormRequest
         ];
     }
 
+    /**
+     * バリデーションメッセージ
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [
