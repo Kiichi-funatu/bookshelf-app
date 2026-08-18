@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\ReadingPlan;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -9,24 +10,33 @@ class ReadingPlanReminder extends Notification
 {
     use Queueable;
 
-    public string $timing;
-    public string $title;
-    public string $body;
-    public int $planId;
+    /**
+     * @var ReadingPlan
+     */
+    private ReadingPlan $plan;
+
+    /**
+     * @var string three_days_before | on_due_date | three_days_after
+     */
+    private string $timing;
 
     /**
      * コンストラクタ
+     *
+     * @param ReadingPlan $plan
+     * @param string $timing
      */
-    public function __construct(string $timing, string $title, string $body, int $planId)
+    public function __construct(ReadingPlan $plan, string $timing)
     {
+        $this->plan   = $plan;
         $this->timing = $timing;
-        $this->title = $title;
-        $this->body = $body;
-        $this->planId = $planId;
     }
 
     /**
-     * 通知チャネル（メールではなく database）
+     * 通知チャネル（database）
+     *
+     * @param mixed $notifiable
+     * @return array<int, string>
      */
     public function via($notifiable): array
     {
@@ -35,15 +45,49 @@ class ReadingPlanReminder extends Notification
 
     /**
      * database 通知として保存される JSON
-     * Blade が参照するキーと完全一致させる
+     *
+     * @param mixed $notifiable
+     * @return array<string, mixed>
      */
     public function toDatabase($notifiable): array
     {
         return [
-            'timing' => $this->timing,   // three_days_before / on_due_date / three_days_after
-            'title'  => $this->title,    // Blade のタイトル表示
-            'body'   => $this->body,     // Blade の本文表示
-            'plan_id' => $this->planId,  // 読書計画ID（必要なら詳細画面へ遷移できる）
+            'timing'  => $this->timing,
+            'title'   => $this->getTitle(),
+            'body'    => $this->getBody(),
+            'plan_id' => $this->plan->id,
         ];
+    }
+
+    /**
+     * タイトル生成
+     *
+     * @return string
+     */
+    private function getTitle(): string
+    {
+        return match ($this->timing) {
+            'three_days_before' => '読書計画の期限が近づいています',
+            'on_due_date'       => '読書計画の期限日です',
+            'three_days_after'  => '読書計画の期限を過ぎています',
+            default             => '読書計画のお知らせ',
+        };
+    }
+
+    /**
+     * 本文生成
+     *
+     * @return string
+     */
+    private function getBody(): string
+    {
+        $title = $this->plan->book->title;
+
+        return match ($this->timing) {
+            'three_days_before' => "「{$title}」の期限はあと3日です。",
+            'on_due_date'       => "「{$title}」の期限は今日です。",
+            'three_days_after'  => "「{$title}」の期限から3日が経過しました。",
+            default             => "「{$title}」に関する読書計画のお知らせです。",
+        };
     }
 }
