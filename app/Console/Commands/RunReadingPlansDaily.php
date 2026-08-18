@@ -36,7 +36,7 @@ class RunReadingPlansDaily extends Command
         $threeDaysBefore = $today->copy()->addDays(3);
 
         $plans = ReadingPlan::whereDate('due_date', $threeDaysBefore)
-            ->where('status', ReadingPlanStatus::IN_PROGRESS)
+            ->where('status', ReadingPlanStatus::in_progress)
             ->get();
 
         foreach ($plans as $plan) {
@@ -47,7 +47,7 @@ class RunReadingPlansDaily extends Command
 
         // 2. 当日（in_progress のみ通知）
         $plans = ReadingPlan::whereDate('due_date', $today)
-            ->where('status', ReadingPlanStatus::IN_PROGRESS)
+            ->where('status', ReadingPlanStatus::in_progress)
             ->get();
 
         foreach ($plans as $plan) {
@@ -60,7 +60,7 @@ class RunReadingPlansDaily extends Command
         $threeDaysAfter = $today->copy()->subDays(3);
 
         $plans = ReadingPlan::whereDate('due_date', $threeDaysAfter)
-            ->where('status', ReadingPlanStatus::EXPIRED)
+            ->where('status', ReadingPlanStatus::Expired)
             ->get();
 
         foreach ($plans as $plan) {
@@ -72,9 +72,9 @@ class RunReadingPlansDaily extends Command
         // 4. 期限切れステータス自動更新（transaction 不要）
         ReadingPlan::whereDate('due_date', '<', $today)
             ->whereNull('completed_at')
-            ->where('status', ReadingPlanStatus::IN_PROGRESS)
+            ->where('status', ReadingPlanStatus::in_progress)
             ->update([
-                'status' => ReadingPlanStatus::EXPIRED,
+                'status' => ReadingPlanStatus::Expired,
             ]);
 
         return Command::SUCCESS;
