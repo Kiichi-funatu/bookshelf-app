@@ -75,6 +75,11 @@ class BookController extends Controller
             }
         }
 
+        // ★ sort が指定されていない場合は created_at の降順（最新順）
+        if (empty($validated['sort'])) {
+            $query->orderBy('created_at', 'desc');
+        }
+
         // ページネーション（検索条件を引き継ぐ）
         $books = $query->paginate(10)->appends($validated);
 
@@ -93,7 +98,7 @@ class BookController extends Controller
     public function show(Book $book): View
     {
         // Blade が使うリレーションをすべてロード
-        $book->load([
+        $book->loadMissing([
             'reviews.user',
             'reviews.likedByUsers',   // ★ Blade の likedByUsers に合わせる
             'genres',
@@ -108,8 +113,7 @@ class BookController extends Controller
 
         // お気に入り判定のために favoriteBooks をロード
         if (auth()->check()) {
-            auth()->user()->load('favoriteBooks'); // ★ Blade の favoriteBooks に合わせる
-            auth()->user()->load('likedReviews');
+            auth()->user()->load(['favoriteBooks', 'likedReviews']);
         }
 
         // Blade が使うお気に入り判定

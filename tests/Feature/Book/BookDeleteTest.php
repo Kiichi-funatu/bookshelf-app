@@ -13,6 +13,12 @@ class BookDeleteTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+    }
+
     /** @test */
     public function ゲストは書籍削除を実行できずログインへリダイレクトされる()
     {

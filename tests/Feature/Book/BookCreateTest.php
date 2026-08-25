@@ -13,6 +13,13 @@ class BookCreateTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+    }
+
     /** @test */
     public function ゲストは書籍作成画面にアクセスできずログインへリダイレクトされる()
     {
@@ -41,14 +48,15 @@ class BookCreateTest extends TestCase
         $payload = [
             'title' => 'テスト書籍',
             'author' => 'テスト著者',
+            'isbn' => '1234567890123',
             'published_date' => '2024-01-01',
             'description' => '説明文',
-            'genre_ids' => [$genre->id],
+            'genres' => [$genre->id],
         ];
 
         $response = $this->actingAs($user)->post(route('books.store'), $payload);
 
-        $response->assertRedirect(route('books.index'));
+        $response->assertRedirect(route('books.show', 1));
 
         $this->assertDatabaseHas('books', [
             'title' => 'テスト書籍',

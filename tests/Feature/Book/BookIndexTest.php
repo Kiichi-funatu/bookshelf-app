@@ -11,6 +11,12 @@ class BookIndexTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+    }
+
     /** @test */
     public function 公開ページとして書籍一覧にアクセスできる()
     {

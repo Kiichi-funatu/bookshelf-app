@@ -3,8 +3,9 @@
 namespace Tests\Feature\Book;
 
 use App\Models\Book;
-use App\Models\Gemre;
+use App\Models\Genre;
 use App\Models\Review;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -12,6 +13,12 @@ use Tests\TestCase;
 class BookShowTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+    }
 
     /** @test */
     public function 公開ページとして書籍詳細にアクセスできる()
@@ -58,7 +65,7 @@ class BookShowTest extends TestCase
         $book = Book::factory()->create();
 
         $review = Review::factory()->for($book)->for($user)->create([
-            'content' => 'レビュー本文',
+            'comment' => 'レビュー本文',
             'rating' => 4,
         ]);
 
@@ -69,18 +76,25 @@ class BookShowTest extends TestCase
     }
 
     /** @test */
-    public function いいね数が表示される()
+    public function レビューのいいね数が表示される()
     {
         $user = User::factory()->create();
         $book = Book::factory()->create();
 
-        // pivot: likes
-        $book->likes()->attach($user->id);
+        // レビュー作成
+        $review = Review::factory()->for($book)->for($user)->create([
+            'comment' => 'レビュー本文',
+        ]);
 
-        $response = $this->get(route('books.show', $book));
+        // レビューにいいねを付ける（ReviewLike を使う）
+        $user->likedReviews()->attach($review->id);
 
-        $response->assertSee('1'); // いいね数
+        $response = $this->actingAs($user)->get(route('books.show', $book));
+
+        // Blade の文言に合わせる
+        $response->assertSee('いいね済み (1)');
     }
+
 
     /** @test */
     public function お気に入り状態が表示される()
@@ -88,12 +102,14 @@ class BookShowTest extends TestCase
         $user = User::factory()->create();
         $book = Book::factory()->create();
 
-        $book->favorites()->attach($user->id);
+        // ★ Blade が使う favorites（Book 側）を使う
+        $user->favoriteBooks()->attach($book->id);
 
         $response = $this->actingAs($user)->get(route('books.show', $book));
 
-        $response->assertSee('お気に入り済み'); // Blade の文言に合わせる
+        $response->assertSee('お気に入りから削除');
     }
+
 
     /** @test */
     public function 存在しないIDの場合は404が返る()

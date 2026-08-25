@@ -49,19 +49,25 @@ class SearchTest extends TestCase
     {
         $response = $this->get(route('books.index', ['keyword' => 'Laravel']));
 
-        $response->assertSee('value="Laravel"'); // <input value="Laravel">
+        $response->assertSee('value="Laravel"', false); // <input value="Laravel">
     }
 
     /** @test */
     public function 検索結果は10件でページネーションされる()
     {
-        // 15件作成（タイトルは全部「Laravel本」）
-        Book::factory()->count(15)->create(['title' => 'Laravel本']);
+        // created_at をずらして 15 件作成
+        for ($i = 0; $i < 15; $i++) {
+            Book::factory()->create([
+                'title' => 'Laravel本',
+                'author' => 'Laravel著者' . $i,
+                'created_at' => now()->subMinutes($i),
+            ]);
+        }
 
         $response = $this->get(route('books.index', ['keyword' => 'Laravel']));
 
         // 2ページ目が存在する
-        $response->assertSee('?page=2');
+        $response->assertSee('rel="next"', false);
     }
 
     /** @test */
@@ -72,6 +78,6 @@ class SearchTest extends TestCase
         $response = $this->get(route('books.index', ['keyword' => 'Python']));
 
         $response->assertDontSee('Laravel入門');
-        $response->assertSee('検索結果がありません'); // Blade の文言に合わせる
+        $response->assertSee('書籍が見つかりませんでした。'); // Blade の文言に合わせる
     }
 }

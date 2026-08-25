@@ -17,7 +17,7 @@ class FavoriteToggleTest extends TestCase
     {
         $book = Book::factory()->create();
 
-        $response = $this->post(route('books.favorite', $book));
+        $response = $this->post(route('favorites.toggle', $book));
 
         $response->assertRedirect(route('login'));
     }
@@ -28,11 +28,11 @@ class FavoriteToggleTest extends TestCase
         $user = User::factory()->create();
         $book = Book::factory()->create();
 
-        $response = $this->actingAs($user)->post(route('books.favorite', $book));
+        $response = $this->actingAs($user)->post(route('favorites.toggle', $book));
 
         $response->assertRedirect();
 
-        $this->assertDatabaseHas('book_favorite', [
+        $this->assertDatabaseHas('favorites', [
             'book_id' => $book->id,
             'user_id' => $user->id,
         ]);
@@ -47,11 +47,11 @@ class FavoriteToggleTest extends TestCase
         // 事前にお気に入り登録
         $book->favorites()->attach($user->id);
 
-        $response = $this->actingAs($user)->post(route('books.favorite', $book));
+        $response = $this->actingAs($user)->post(route('favorites.toggle', $book));
 
         $response->assertRedirect();
 
-        $this->assertDatabaseMissing('book_favorite', [
+        $this->assertDatabaseMissing('favorites', [
             'book_id' => $book->id,
             'user_id' => $user->id,
         ]);
@@ -64,16 +64,16 @@ class FavoriteToggleTest extends TestCase
         $book = Book::factory()->create();
 
         // 1回目（追加）
-        $this->actingAs($user)->post(route('books.favorite', $book));
+        $this->actingAs($user)->post(route('favorites.toggle', $book));
 
         // 2回目（解除）
-        $this->actingAs($user)->post(route('books.favorite', $book));
+        $this->actingAs($user)->post(route('favorites.toggle', $book));
 
         // 3回目（再追加）
-        $this->actingAs($user)->post(route('books.favorite', $book));
+        $this->actingAs($user)->post(route('favorites.toggle', $book));
 
         // 最終的に1件だけ存在すること
-        $this->assertDatabaseHas('book_favorite', [
+        $this->assertDatabaseHas('favorites', [
             'book_id' => $book->id,
             'user_id' => $user->id,
         ]);
@@ -84,7 +84,7 @@ class FavoriteToggleTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post(route('books.favorite', 999999));
+        $response = $this->actingAs($user)->post(route('favorites.toggle', 999999));
 
         $response->assertNotFound();
     }

@@ -18,7 +18,7 @@ class RankingTest extends TestCase
         $response = $this->get(route('ranking.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('ランキング'); // Blade のタイトルに合わせる
+        $response->assertSee('評価ランキング TOP 10'); // Blade のタイトルに合わせる
     }
 
     /** @test */
@@ -51,7 +51,7 @@ class RankingTest extends TestCase
 
         $response = $this->get(route('ranking.index'));
 
-        // 2ページ目が存在する（paginate 10）
-        $response->assertSee('?page=2');
+        // Blade に渡される変数名は rankedBooks
+        $this->assertCount(10, $response->viewData('rankedBooks'));
     }
 }

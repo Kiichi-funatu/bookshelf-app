@@ -13,6 +13,13 @@ class BookUpdateTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+    }
+
     /** @test */
     public function ゲストは書籍編集画面にアクセスできずログインへリダイレクトされる()
     {
@@ -45,7 +52,7 @@ class BookUpdateTest extends TestCase
         $response = $this->actingAs($owner)->get(route('books.edit', $book));
 
         $response->assertStatus(200);
-        $response->assertSee('書籍編集'); // Blade のタイトルに合わせる
+        $response->assertSee('書籍の編集'); // Blade のタイトルに合わせる
     }
 
     /** @test */
@@ -58,9 +65,10 @@ class BookUpdateTest extends TestCase
         $payload = [
             'title' => '更新後タイトル',
             'author' => '更新後著者',
+            'isbn' => '1234567890123',
             'published_date' => '2024-02-01',
             'description' => '更新後説明文',
-            'genre_ids' => [$genre->id],
+            'genres' => [$genre->id],
         ];
 
         $response = $this->actingAs($owner)->put(route('books.update', $book), $payload);
