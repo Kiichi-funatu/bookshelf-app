@@ -40,14 +40,14 @@ class ReviewUpdateTest extends TestCase
     {
         $owner = User::factory()->create();
         $review = Review::factory()->for($owner)->create([
-            'content' => '旧レビュー',
+            'comment' => '旧レビュー',
             'rating' => 3,
         ]);
 
         $response = $this->actingAs($owner)->get(route('reviews.edit', $review));
 
         $response->assertStatus(200);
-        $response->assertSee('レビュー編集'); // Blade のタイトルに合わせる
+        $response->assertSee('レビューの編集'); // Blade のタイトルに合わせる
     }
 
     /** @test */
@@ -58,7 +58,7 @@ class ReviewUpdateTest extends TestCase
         $review = Review::factory()->for($owner)->for($book)->create();
 
         $payload = [
-            'content' => '更新後レビュー本文',
+            'comment' => '更新後レビュー本文',
             'rating' => 5,
         ];
 
@@ -68,7 +68,7 @@ class ReviewUpdateTest extends TestCase
 
         $this->assertDatabaseHas('reviews', [
             'id' => $review->id,
-            'content' => '更新後レビュー本文',
+            'comment' => '更新後レビュー本文',
             'rating' => 5,
         ]);
     }
@@ -80,13 +80,13 @@ class ReviewUpdateTest extends TestCase
         $review = Review::factory()->for($owner)->create();
 
         $payload = [
-            'content' => '',
+            'comment' => '',
             'rating' => 4,
         ];
 
         $response = $this->actingAs($owner)->put(route('reviews.update', $review), $payload);
 
-        $response->assertSessionHasErrors(['content']);
+        $response->assertSessionHasErrors(['comment']);
     }
 
     /** @test */
@@ -96,7 +96,7 @@ class ReviewUpdateTest extends TestCase
         $review = Review::factory()->for($owner)->create();
 
         $payload = [
-            'content' => 'レビュー本文',
+            'comment' => 'レビュー本文',
             'rating' => '',
         ];
 
@@ -112,7 +112,7 @@ class ReviewUpdateTest extends TestCase
         $review = Review::factory()->for($owner)->create();
 
         $payload = [
-            'content' => 'レビュー本文',
+            'comment' => 'レビュー本文',
             'rating' => 10, // 1〜5 の範囲外
         ];
 

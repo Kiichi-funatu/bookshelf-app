@@ -19,7 +19,7 @@ class ReviewCreateTest extends TestCase
         $book = Book::factory()->create();
 
         $response = $this->post(route('reviews.store', $book), [
-            'content' => 'レビュー本文',
+            'comment' => 'レビュー本文',
             'rating' => 5,
         ]);
 
@@ -33,7 +33,7 @@ class ReviewCreateTest extends TestCase
         $book = Book::factory()->create();
 
         $payload = [
-            'content' => 'とても面白かった！',
+            'comment' => 'とても面白かった！',
             'rating' => 5,
         ];
 
@@ -44,7 +44,7 @@ class ReviewCreateTest extends TestCase
         $this->assertDatabaseHas('reviews', [
             'book_id' => $book->id,
             'user_id' => $user->id,
-            'content' => 'とても面白かった！',
+            'comment' => 'とても面白かった！',
             'rating' => 5,
         ]);
     }
@@ -56,13 +56,13 @@ class ReviewCreateTest extends TestCase
         $book = Book::factory()->create();
 
         $payload = [
-            'content' => '',
+            'comment' => '',
             'rating' => 5,
         ];
 
         $response = $this->actingAs($user)->post(route('reviews.store', $book), $payload);
 
-        $response->assertSessionHasErrors(['content']);
+        $response->assertSessionHasErrors(['comment']);
     }
 
     /** @test */
@@ -72,7 +72,7 @@ class ReviewCreateTest extends TestCase
         $book = Book::factory()->create();
 
         $payload = [
-            'content' => 'レビュー本文',
+            'comment' => 'レビュー本文',
             'rating' => '',
         ];
 
@@ -88,7 +88,7 @@ class ReviewCreateTest extends TestCase
         $book = Book::factory()->create();
 
         $payload = [
-            'content' => 'レビュー本文',
+            'comment' => 'レビュー本文',
             'rating' => 10, // 1〜5 の範囲外
         ];
 

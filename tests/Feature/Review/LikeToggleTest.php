@@ -32,7 +32,7 @@ class LikeToggleTest extends TestCase
 
         $response->assertRedirect();
 
-        $this->assertDatabaseHas('review_like', [
+        $this->assertDatabaseHas('review_likes', [
             'review_id' => $review->id,
             'user_id' => $user->id,
         ]);
@@ -51,7 +51,7 @@ class LikeToggleTest extends TestCase
 
         $response->assertRedirect();
 
-        $this->assertDatabaseMissing('review_like', [
+        $this->assertDatabaseMissing('review_likes', [
             'review_id' => $review->id,
             'user_id' => $user->id,
         ]);
@@ -73,7 +73,7 @@ class LikeToggleTest extends TestCase
         $this->actingAs($user)->post(route('reviews.like', $review));
 
         // 最終的に1件だけ存在すること
-        $this->assertDatabaseHas('review_like', [
+        $this->assertDatabaseHas('review_likes', [
             'review_id' => $review->id,
             'user_id' => $user->id,
         ]);
