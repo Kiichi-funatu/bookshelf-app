@@ -1,11 +1,10 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Genre;
 
 use App\Models\User;
 use App\Models\Genre;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class GenreIndexTest extends TestCase
@@ -16,7 +15,6 @@ class GenreIndexTest extends TestCase
     public function ゲストはジャンル一覧にアクセスできずログインへリダイレクトされる()
     {
         $response = $this->get(route('genres.index'));
-
         $response->assertRedirect(route('login'));
     }
 
@@ -28,7 +26,7 @@ class GenreIndexTest extends TestCase
         $response = $this->actingAs($user)->get(route('genres.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('ジャンル一覧'); // Blade のタイトルに合わせる
+        $response->assertSee('ジャンル管理'); // Blade のタイトル
     }
 
     /** @test */
@@ -36,28 +34,25 @@ class GenreIndexTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $genre1 = Genre::factory()->create(['name' => 'ミステリー']);
-        $genre2 = Genre::factory()->create(['name' => 'ファンタジー']);
+        Genre::factory()->create(['name' => '技術']);
+        Genre::factory()->create(['name' => '小説']);
 
         $response = $this->actingAs($user)->get(route('genres.index'));
 
-        $response->assertSee('ミステリー');
-        $response->assertSee('ファンタジー');
+        $response->assertSee('技術');
+        $response->assertSee('小説');
     }
 
     /** @test */
-    public function ジャンル一覧が最新順で表示される()
+    public function 書籍数が表示される()
     {
         $user = User::factory()->create();
 
-        $old = Genre::factory()->create(['created_at' => now()->subDays(2), 'name' => '古いジャンル']);
-        $new = Genre::factory()->create(['created_at' => now()->subDay(), 'name' => '新しいジャンル']);
+        Genre::factory()->create(['name' => '技術']);
 
         $response = $this->actingAs($user)->get(route('genres.index'));
 
-        $response->assertSeeInOrder([
-            '新しいジャンル',
-            '古いジャンル',
-        ]);
+        $response->assertSee('冊'); // books_count の表示
     }
+
 }

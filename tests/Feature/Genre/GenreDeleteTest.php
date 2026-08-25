@@ -27,13 +27,20 @@ class GenreDeleteTest extends TestCase
     public function 書籍が紐づいているジャンルは削除できずエラーメッセージが返る()
     {
         $user = User::factory()->create();
+        $this->actingAs($user);
+
         $genre = Genre::factory()->create();
-        Book::factory()->for($genre)->create(); // 紐づけ
+        $book = Book::factory()->create();
 
-        $response = $this->actingAs($user)->delete(route('genres.destroy', $genre));
+        $book->genres()->attach($genre->id);
 
-        $response->assertSessionHasErrors();
-        $this->assertDatabaseHas('genres', ['id' => $genre->id]); // 削除されていない
+        $response = $this->delete(route('genres.destroy', $genre));
+
+        // ★ 仕様書どおり：エラーメッセージが返ることを確認
+        $response->assertSessionHas('error');
+
+        // 削除されていない
+        $this->assertDatabaseHas('genres', ['id' => $genre->id]);
     }
 
     /** @test */
