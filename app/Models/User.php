@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -80,4 +81,25 @@ class User extends Authenticatable
         return $this->belongsToMany(Book::class, 'favorites')
                     ->withTimestamps();
     }
+
+    /**
+     * 投稿したレビュー（1対多）
+     *
+     * @return HasMany<Review>
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * いいねしたレビュー（エイリアス）
+     *
+     * @return BelongsToMany<Review>
+     */
+    public function likes(): BelongsToMany
+    {
+        return $this->belongsToMany(Review::class, 'review_likes');
+    }
+
 }
