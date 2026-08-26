@@ -91,5 +91,36 @@ class Book extends Model
     {
         return $this->reviews()->count();
     }
+
+    /**
+     * レビュー平均評価を返す
+     *
+     * @return float|null
+     */
+    public function averageRating(): ?float
+    {
+        return $this->reviews()->avg('rating');
+    }
+
+    /**
+     * キーワード検索スコープ
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string|null $keyword
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeKeyword($query, ?string $keyword)
+    {
+        if (!empty($keyword)) {
+            return $query->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                ->orWhere('author', 'like', "%{$keyword}%");
+            });
+        }
+
+        return $query;
+    }
+
+
 }
 

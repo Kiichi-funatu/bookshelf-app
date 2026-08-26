@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Genre;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Carbon\Carbon;
 
 class BookTest extends TestCase
 {
@@ -42,5 +43,38 @@ class BookTest extends TestCase
         $book->genres()->attach($genre->id);
 
         $this->assertTrue($book->genres->contains($genre));
+    }
+
+    /** @test */
+    public function averageRatingメソッドが正しく動作する()
+    {
+        $book = Book::factory()->create();
+
+        Review::factory()->for($book)->create(['rating' => 5]);
+        Review::factory()->for($book)->create(['rating' => 3]);
+
+        $this->assertEquals(4, $book->averageRating());
+    }
+
+    /** @test */
+    public function published_dateキャストがCarbonになる()
+    {
+        $book = Book::factory()->create([
+            'published_date' => '2024-01-01',
+        ]);
+
+        $this->assertInstanceOf(Carbon::class, $book->published_date);
+    }
+
+    /** @test */
+    public function keywordスコープが機能する()
+    {
+        Book::factory()->create(['title' => 'Laravel入門']);
+        Book::factory()->create(['title' => 'PHPの本']);
+
+        $results = Book::keyword('Laravel')->get();
+
+        $this->assertCount(1, $results);
+        $this->assertEquals('Laravel入門', $results->first()->title);
     }
 }
