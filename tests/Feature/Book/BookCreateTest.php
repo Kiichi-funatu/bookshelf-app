@@ -56,7 +56,7 @@ class BookCreateTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('books.store'), $payload);
 
-        $response->assertRedirect(route('books.show', 1));
+        $response->assertRedirect(route('books.show', Book::latest()->first()));
 
         $this->assertDatabaseHas('books', [
             'title' => 'テスト書籍',
