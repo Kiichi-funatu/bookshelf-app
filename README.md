@@ -21,7 +21,7 @@ Laravel Sail（ローカル開発環境）
 
 MySQL 8.x
 
-GuzzleHTTP（Google Books API 連携）
+GuzzleHTTP（Open Library API 連携）
 
 Frontend
 Vite
@@ -43,7 +43,7 @@ PHPUnit 10.x
 Laravel Test Components（Feature / Unit）
 
 External API
-Google Books API（ISBN 連携）
+Open Library API（ISBN 連携）
 
 ---
 
@@ -86,10 +86,9 @@ DB_HOST=mysql
 MAIL_HOST=mailpit
 
 
-Google Books API（ISBN 連携）
+# ISBN 連携（Open Library API）
+# Open Library API は APIキー不要・URL固定のため設定不要
 
-GOOGLE_BOOKS_API_URL=https://www.googleapis.com/books/v1/volumes
-GOOGLE_BOOKS_API_KEY=あなたのAPIキー
 
 
 Sanctum（SPA 認証）
@@ -147,11 +146,9 @@ SANCTUM_STATEFUL_DOMAINS=localhost,127.0.0.1,localhost:3000
 SESSION_DOMAIN=localhost
 
 
-11. ISBN 連携（Google Books API）
-以下の環境変数が必須です：
-
-GOOGLE_BOOKS_API_URL=https://www.googleapis.com/books/v1/volumes
-GOOGLE_BOOKS_API_KEY=あなたのAPIキー
+11. ISBN 連携（Open Library API）
+Open Library API を使用して ISBN から書籍情報を取得します。
+APIキー不要・レート制限なし・完全無料で利用できます。
 
 
 12. 公開 API（認証なし / Sanctum 認証）
@@ -442,7 +439,7 @@ POST	/api/genres	ジャンル作成
 
 ISBN 連携 API
 
-GET	/api/isbn/{isbn}	Google Books API から書籍情報取得
+GET	/api/isbn/{isbn}	Open Library API から書籍情報取得
 
 
 

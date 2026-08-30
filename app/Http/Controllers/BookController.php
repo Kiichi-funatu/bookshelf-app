@@ -267,32 +267,45 @@ class BookController extends Controller
      */
     public function isbnLookup($isbn)
     {
-        // Google Books API 呼び出し
-        $response = Http::get('https://www.googleapis.com/books/v1/volumes', [
-            'q' => 'isbn:' . $isbn,
-        ]);
+        // Open Library API 呼び出し
+        $response = Http::get("https://openlibrary.org/isbn/{$isbn}.json");
 
-        // APIエラー時
         if ($response->failed()) {
-            return response()->json(['error' => 'Google Books API の呼び出しに失敗しました'], 500);
+            return response()->json(['error' => '書籍情報の取得に失敗しました'], 500);
         }
 
         $data = $response->json();
 
-        // 書籍が見つからない場合
-        if (empty($data['items'][0])) {
-            return response()->json(['error' => '該当する書籍が見つかりませんでした'], 404);
+        // 著者名の取得（Open Library は author の参照が別API）
+        $authorName = null;
+        if (!empty($data['authors'][0]['key'])) {
+            $authorResponse = Http::get("https://openlibrary.org{$data['authors'][0]['key']}.json");
+            if ($authorResponse->ok()) {
+                $authorJson = $authorResponse->json();
+                $authorName = $authorJson['name'] ?? null;
+            }
         }
 
-        $book = $data['items'][0]['volumeInfo'];
+        // 説明（description）は文字列 or 配列の両方がある
+        $description = null;
+        if (!empty($data['description'])) {
+            $description = is_array($data['description'])
+                ? ($data['description']['value'] ?? null)
+                : $data['description'];
+        }
 
-        // Blade が使う形式に整形して返す
+        // カバー画像
+        $imageUrl = null;
+        if (!empty($data['covers'][0])) {
+            $imageUrl = "https://covers.openlibrary.org/b/id/{$data['covers'][0]}-L.jpg";
+        }
+
         return response()->json([
-            'title'          => $book['title'] ?? null,
-            'author'         => $book['authors'][0] ?? null,
-            'published_date' => $book['publishedDate'] ?? null,
-            'description'    => $book['description'] ?? null,
-            'image_url'      => $book['imageLinks']['thumbnail'] ?? null,
+            'title'          => $data['title'] ?? null,
+            'author'         => $authorName,
+            'published_date' => $data['publish_date'] ?? null,
+            'description'    => $description,
+            'image_url'      => $imageUrl,
         ]);
     }
 }

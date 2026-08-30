@@ -13,10 +13,15 @@ class BookFactory extends Factory
     public function definition()
     {
         return [
-            'title' => $this->faker->sentence,
-            'author' => $this->faker->name,
+            //'title' => $this->faker->sentence,
+            //'author' => $this->faker->name,
+            'title'          => 'テストタイトル',
+            'author'         => 'テスト著者',
             'description' => $this->faker->paragraph,
             'user_id' => User::factory(), // 作成者
+            'published_date' => $this->faker->date(),
+            'created_at'     => now()->subDays(rand(0, 30)),
+            'updated_at'     => now(),
         ];
     }
 }
