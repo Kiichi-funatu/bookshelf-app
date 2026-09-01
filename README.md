@@ -56,7 +56,8 @@ Open Library API（ISBN 連携）
 1. プロジェクト取得（Git Clone）
 
 git clone https://github.com/Kiichi-funatu/bookshelf-app.git
-  cd bookshelf-app
+  
+cd bookshelf-app
 
 
 2. Composer 依存関係インストール
